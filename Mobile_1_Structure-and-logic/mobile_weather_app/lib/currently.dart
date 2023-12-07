@@ -19,9 +19,8 @@ class _CurrentlyState extends State<Currently> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Text('Currently', style: TextStyle(fontSize: 40)),
-          Text(
-            widget.isGeoLocationEnabled ? 'Geolocalisation' : widget.cityName,
-            style: const TextStyle(fontSize: 20),
+          if(widget.cityName.isNotEmpty)
+            Text( widget.cityName, style: const TextStyle(fontSize: 20),
           ), 
         ],
       ),

@@ -20,9 +20,8 @@ class _TodayState extends State<Today> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Text('Today', style: TextStyle(fontSize: 40)),
-          Text(
-            widget.isGeoLocationEnabled ? 'Geolocalisation' : widget.cityName,
-            style: const TextStyle(fontSize: 20),
+          if(widget.cityName.isNotEmpty)
+            Text( widget.cityName, style: const TextStyle(fontSize: 20),
           ),
         ],
       ),
