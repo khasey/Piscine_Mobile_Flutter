@@ -33,3 +33,4 @@ time.The application must always show the last search.
 
 Your application must be responsive.
 
+<img src="https://github.com/khasey/Mobile_1_Structure-and-logic/mobile_weather_app/screenshot/screen.png?raw=true" width="300" height="615">
