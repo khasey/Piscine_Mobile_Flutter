@@ -2,7 +2,10 @@
 import 'package:flutter/material.dart';
 
 class Currently extends StatefulWidget {
-  const Currently({super.key});
+  final bool isGeoLocationEnabled;
+  final String cityName;
+
+  const Currently({super.key, required this.isGeoLocationEnabled, required this.cityName});
 
   @override
   State<Currently> createState() => _CurrentlyState();
@@ -11,6 +14,17 @@ class Currently extends StatefulWidget {
 class _CurrentlyState extends State<Currently> {
   @override
   Widget build(BuildContext context) {
-    return const Center(child: Text('Currently', style: TextStyle(fontSize: 40)));
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text('Currently', style: TextStyle(fontSize: 40)),
+          Text(
+            widget.isGeoLocationEnabled ? 'Geolocalisation' : widget.cityName,
+            style: const TextStyle(fontSize: 20),
+          ), 
+        ],
+      ),
+    );
   }
 }
