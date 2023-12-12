@@ -25,8 +25,6 @@ class _BottomBarState extends State<BottomBar> {
   final PageController pageController = PageController();
 
   void showError(String message) {
-  // Mettez à jour l'état pour afficher un message d'erreur
-  // Vous pouvez utiliser un `SnackBar`, une `AlertDialog`, ou un autre widget pour afficher l'erreur
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
 }
 

@@ -37,6 +37,10 @@ class _TodayState extends State<Today> {
     }
   }
 
+  void showError(String message) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+}
+
   Future<void> getWeather() async {
     if (widget.latitude == null || widget.longitude == null) return;
 
@@ -71,7 +75,11 @@ class _TodayState extends State<Today> {
           hourlyWeather = tempHourlyWeather; // Affecter à la variable d'état
         });
       }
+      else{
+        showError('Failed to fetch weather');
+      }
     } catch (e) {
+      showError('Failed to fetch weather');
       print('Error fetching weather: $e');
     }
   }

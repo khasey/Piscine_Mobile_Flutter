@@ -30,6 +30,10 @@ class _WeeklyState extends State<Weekly> {
     }
   }
 
+    void showError(String message) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+}
+
   Future<void> getWeeklyWeather() async {
     try {
       String timezone = "GMT";
@@ -68,6 +72,9 @@ class _WeeklyState extends State<Weekly> {
             });
           });
         }
+      }
+      else{
+        showError('Failed to fetch weekly weather');
       }
     } catch (e) {
       print('Error fetching weekly weather: $e');
