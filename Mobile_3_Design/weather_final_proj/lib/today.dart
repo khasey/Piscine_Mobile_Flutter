@@ -102,6 +102,7 @@ class _TodayState extends State<Today> {
     Map<String, String> locationInfo = parseCityName(widget.cityName);
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center, // Centre verticalement
         children: <Widget>[

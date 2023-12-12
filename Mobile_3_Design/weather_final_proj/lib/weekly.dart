@@ -150,6 +150,7 @@ class _WeeklyState extends State<Weekly> {
     Map<String, String> locationInfo = parseCityName(widget.cityName);
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[

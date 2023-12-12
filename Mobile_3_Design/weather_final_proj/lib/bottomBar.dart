@@ -89,6 +89,7 @@ class _BottomBarState extends State<BottomBar> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Color.fromRGBO(243, 236, 250, 1),
         title: Autocomplete<Map<String, dynamic>>(
           optionsBuilder: (TextEditingValue textEditingValue) async {
             if (textEditingValue.text == '') {
@@ -112,6 +113,7 @@ class _BottomBarState extends State<BottomBar> {
             return TextField(
               controller: textEditingController,
               focusNode: focusNode,
+              cursorColor: Colors.amber,
               decoration: const InputDecoration(
                 prefixIcon: Icon(Icons.search),
                 hintText: 'Search a Town...',
