@@ -24,6 +24,30 @@ class _BottomBarState extends State<BottomBar> {
   String selectionFull = '';
   final PageController pageController = PageController();
 
+  void showError(String message) {
+  // Mettez à jour l'état pour afficher un message d'erreur
+  // Vous pouvez utiliser un `SnackBar`, une `AlertDialog`, ou un autre widget pour afficher l'erreur
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+}
+
+  Future<void> getLocationDetails(double latitude, double longitude) async {
+  final response = await http.get(Uri.parse('http://nominatim.openstreetmap.org/reverse?format=json&lat=$latitude&lon=$longitude&zoom=18&addressdetails=1'));
+
+  if (response.statusCode == 200) {
+    final data = json.decode(response.body);
+    setState(() {
+      selectedCity = data['address']['village'] ?? data['address']['town'] ?? data['address']['city'] ?? '';
+      selectedRegion = data['address']['state'] ?? '';
+      selectedCountry = data['address']['country'] ?? '';
+      selectionFull = "$selectedCity, $selectedRegion, $selectedCountry";
+    });
+  } else {
+    showError('Failed to fetch location details');
+    // Gérer l'erreur ici
+  }
+}
+
+
   Future<List<Map<String, dynamic>>> searchCities(String query) async {
     final response = await http.get(Uri.parse(
         'https://geocoding-api.open-meteo.com/v1/search?name=$query&count=5&language=en&format=json'));
@@ -32,6 +56,11 @@ class _BottomBarState extends State<BottomBar> {
       final data = json.decode(response.body);
       if (data != null && data.containsKey('results')) {
         List<dynamic> results = data['results'];
+        if (results.isEmpty) {
+        // Gestion de la ville inexistante
+        showError("City name not valid.");
+        return [];
+      }
         return results.map((item) {
           String name = item['name'];
           String region = item.containsKey('admin1') ? item['admin1'] : '';
@@ -48,9 +77,11 @@ class _BottomBarState extends State<BottomBar> {
           };
         }).toList();
       } else {
+        showError("Connection to the API failed.");
         return [];
       }
     } else {
+      showError("Connection to the API failed.");
       throw Exception('Failed to load cities');
     }
   }
@@ -121,6 +152,7 @@ class _BottomBarState extends State<BottomBar> {
             onPressed: () async {
               try {
                 Position position = await _determinePosition();
+                await getLocationDetails(position.latitude, position.longitude);
                 setState(() {
                   selectedCity = "";
                   selectedRegion = "";
@@ -146,8 +178,7 @@ class _BottomBarState extends State<BottomBar> {
         children: [
           Currently(
             cityName: selectionFull,
-            // region: selectedRegion,
-            // country: selectedCountry,
+
             latitude: selectedLatitude,
             longitude: selectedLongitude,
             isGeoLocationEnabled: isGeoLocationEnabled
@@ -202,13 +233,8 @@ class _BottomBarState extends State<BottomBar> {
   Future<Position> _determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
-
-    // Test if location services are enabled.
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      // Location services are not enabled don't continue
-      // accessing the position and request users of the
-      // App to enable the location services.
       return Future.error('Location services are disabled.');
     }
 
@@ -216,23 +242,15 @@ class _BottomBarState extends State<BottomBar> {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        // Permissions are denied, next time you could try
-        // requesting permissions again (this is also where
-        // Android's shouldShowRequestPermissionRationale
-        // returned true. According to Android guidelines
-        // your App should show an explanatory UI now.
         return Future.error('Location permissions are denied');
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      // Permissions are denied forever, handle appropriately.
       return Future.error(
           'Location permissions are permanently denied, we cannot request permissions.');
     }
-
-    // When we reach here, permissions are granted and we can
-    // continue accessing the position of the device.
     return await Geolocator.getCurrentPosition();
   }
 }
+
