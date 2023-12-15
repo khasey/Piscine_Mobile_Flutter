@@ -26,26 +26,30 @@ class _BottomBarState extends State<BottomBar> {
   final PageController pageController = PageController();
 
   void showError(String message) {
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-}
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
 
   Future<void> getLocationDetails(double latitude, double longitude) async {
-  final response = await http.get(Uri.parse('http://nominatim.openstreetmap.org/reverse?format=json&lat=$latitude&lon=$longitude&zoom=18&addressdetails=1'));
+    final response = await http.get(Uri.parse(
+        'http://nominatim.openstreetmap.org/reverse?format=json&lat=$latitude&lon=$longitude&zoom=18&addressdetails=1'));
 
-  if (response.statusCode == 200) {
-    final data = json.decode(response.body);
-    setState(() {
-      selectedCity = data['address']['village'] ?? data['address']['town'] ?? data['address']['city'] ?? '';
-      selectedRegion = data['address']['state'] ?? '';
-      selectedCountry = data['address']['country'] ?? '';
-      selectionFull = "$selectedCity, $selectedRegion, $selectedCountry";
-    });
-  } else {
-    showError('Failed to fetch location details');
-    // Gérer l'erreur ici
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      setState(() {
+        selectedCity = data['address']['village'] ??
+            data['address']['town'] ??
+            data['address']['city'] ??
+            '';
+        selectedRegion = data['address']['state'] ?? '';
+        selectedCountry = data['address']['country'] ?? '';
+        selectionFull = "$selectedCity, $selectedRegion, $selectedCountry";
+      });
+    } else {
+      showError('Failed to fetch location details');
+      // Gérer l'erreur ici
+    }
   }
-}
-
 
   Future<List<Map<String, dynamic>>> searchCities(String query) async {
     final response = await http.get(Uri.parse(
@@ -56,10 +60,10 @@ class _BottomBarState extends State<BottomBar> {
       if (data != null && data.containsKey('results')) {
         List<dynamic> results = data['results'];
         if (results.isEmpty) {
-        // Gestion de la ville inexistante
-        showError("City name not valid.");
-        return [];
-      }
+          // Gestion de la ville inexistante
+          showError("City name not valid.");
+          return [];
+        }
         return results.map((item) {
           String name = item['name'];
           String region = item.containsKey('admin1') ? item['admin1'] : '';
@@ -104,11 +108,12 @@ class _BottomBarState extends State<BottomBar> {
               selectedCountry = selection['country'];
               selectedLatitude = selection['latitude'];
               selectedLongitude = selection['longitude'];
-              selectionFull = "$selectedCity, $selectedRegion, $selectedCountry";
-              
+              selectionFull =
+                  "$selectedCity, $selectedRegion, $selectedCountry";
             });
           },
-          fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
+          fieldViewBuilder:
+              (context, textEditingController, focusNode, onFieldSubmitted) {
             textEditingController.text = selectionFull;
             return TextField(
               controller: textEditingController,
@@ -132,7 +137,6 @@ class _BottomBarState extends State<BottomBar> {
                     padding: EdgeInsets.zero,
                     shrinkWrap: true,
                     itemCount: options.length,
-                    
                     itemBuilder: (BuildContext context, int index) {
                       final option = options.elementAt(index);
                       return ListTile(
@@ -140,7 +144,7 @@ class _BottomBarState extends State<BottomBar> {
                         iconColor: Colors.black,
                         title: Text(option['label'],
                             style: const TextStyle(fontSize: 16)),
-                        trailing: const Icon(Icons.keyboard_arrow_right),    
+                        trailing: const Icon(Icons.keyboard_arrow_right),
                         onTap: () {
                           onSelected(option);
                         },
@@ -175,34 +179,42 @@ class _BottomBarState extends State<BottomBar> {
           ),
         ],
       ),
-      body: PageView(
-        controller: pageController,
-        onPageChanged: (index) {
-          setState(() {
-            currentPageIndex = index;
-          });
-        },
-        children: [
-          Currently(
-            cityName: selectionFull,
-
-            latitude: selectedLatitude,
-            longitude: selectedLongitude,
-            isGeoLocationEnabled: isGeoLocationEnabled
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage(
+                "assets/back.jpg"), // Assurez-vous que ce chemin est correct
+            fit: BoxFit.cover,
           ),
-          Today(
-            cityName: selectionFull,
-            latitude: selectedLatitude,
-            longitude: selectedLongitude,
-            isGeoLocationEnabled: isGeoLocationEnabled
-          ),
-          Weekly(
-            cityName: selectionFull,
-            latitude: selectedLatitude,
-            longitude: selectedLongitude,
-            isGeoLocationEnabled: isGeoLocationEnabled
-          ),
-        ],
+        ),
+        child: PageView(
+          controller: pageController,
+          onPageChanged: (index) {
+            setState(() {
+              currentPageIndex = index;
+            });
+          },
+          children: [
+            Currently(
+              cityName: selectionFull,
+              latitude: selectedLatitude,
+              longitude: selectedLongitude,
+              isGeoLocationEnabled: isGeoLocationEnabled,
+            ),
+            Today(
+              cityName: selectionFull,
+              latitude: selectedLatitude,
+              longitude: selectedLongitude,
+              isGeoLocationEnabled: isGeoLocationEnabled,
+            ),
+            Weekly(
+              cityName: selectionFull,
+              latitude: selectedLatitude,
+              longitude: selectedLongitude,
+              isGeoLocationEnabled: isGeoLocationEnabled,
+            ),
+          ],
+        ),
       ),
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {
@@ -234,30 +246,28 @@ class _BottomBarState extends State<BottomBar> {
       ),
     );
   }
-
+}
 //avoir la localisation de l'utilisateur et l'afficher dans le champ de recherche
 
-  Future<Position> _determinePosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
-    }
-    return await Geolocator.getCurrentPosition();
+Future<Position> _determinePosition() async {
+  bool serviceEnabled;
+  LocationPermission permission;
+  serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  if (!serviceEnabled) {
+    return Future.error('Location services are disabled.');
   }
-}
 
+  permission = await Geolocator.checkPermission();
+  if (permission == LocationPermission.denied) {
+    permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.denied) {
+      return Future.error('Location permissions are denied');
+    }
+  }
+
+  if (permission == LocationPermission.deniedForever) {
+    return Future.error(
+        'Location permissions are permanently denied, we cannot request permissions.');
+  }
+  return await Geolocator.getCurrentPosition();
+}

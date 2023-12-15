@@ -53,7 +53,7 @@ class _CurrentlyState extends State<Currently> {
     try {
       final response = await http.get(Uri.parse(
           'https://api.open-meteo.com/v1/forecast?latitude=${widget.latitude}&longitude=${widget.longitude}&hourly=temperature_2m,windspeed_10m,weather_code'));
-      
+
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
         setState(() {
@@ -70,7 +70,6 @@ class _CurrentlyState extends State<Currently> {
       print('Error fetching weather: $e');
     }
   }
-
 
   Map<String, String> parseCityName(String cityName) {
     List<String> parts = cityName.split(',').map((e) => e.trim()).toList();
@@ -91,6 +90,7 @@ class _CurrentlyState extends State<Currently> {
   Widget build(BuildContext context) {
     Map<String, String> locationInfo = parseCityName(widget.cityName);
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -98,35 +98,66 @@ class _CurrentlyState extends State<Currently> {
             Center(
               child: Text(
                 '${locationInfo['city']}',
-                style:
-                    const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                  color: Color.fromRGBO(243, 236, 250, 1),
+                  shadows: [
+                    Shadow(
+                      blurRadius: 10.0,
+                      color: Colors.black,
+                      offset: Offset(0, 0),
+                    ),
+                  ],
+                ),
               ),
             ),
-          const SizedBox(
-            height: 10,
-          ),
           if (locationInfo['region'] != '' && locationInfo['country'] != '')
             Center(
               child: Text(
-                  '${locationInfo['region']}, ${locationInfo['country']}',
-                  style: const TextStyle(fontSize: 20, color: Colors.amber)),
+                '${locationInfo['region']}, ${locationInfo['country']}',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color.fromRGBO(243, 236, 250, 1),
+                  shadows: [
+                    Shadow(
+                      blurRadius: 10.0,
+                      color: Colors.black,
+                      offset: Offset(0, 0),
+                    ),
+                  ],
+                ),
+              ),
             ),
           const SizedBox(
-            height: 50,
+            height: 20,
           ),
           if (temperature != null)
             Center(
-              child: Text('$temperature °C',
-                  style: const TextStyle(
-                      fontSize: 50, fontWeight: FontWeight.bold)),
+              child: Text(
+                '$temperature °C',
+                style: const TextStyle(
+                  fontSize: 50,
+                  fontWeight: FontWeight.bold,
+                  color: Color.fromRGBO(243, 236, 250, 1),
+                  shadows: [
+                    Shadow(
+                      blurRadius: 10.0,
+                      color: Colors.black,
+                      offset: Offset(0, 0),
+                    ),
+                  ],
+                ),
+              ),
             ),
           const SizedBox(
-            height: 50,
+            height: 20,
           ),
           if (windSpeed != null)
             WeatherService.getWeatherDescriptionWidget(code!),
           const SizedBox(
-            height: 30,
+            height: 20,
           ),
           if (windSpeed != null)
             Row(
@@ -135,11 +166,30 @@ class _CurrentlyState extends State<Currently> {
                 const Icon(
                   Icons.wind_power_rounded,
                   size: 30,
-                  color: Colors.amber,
+                  color: Color.fromRGBO(243, 236, 250, 1),
+                  shadows: [
+                      Shadow(
+                        blurRadius: 10.0,
+                        color: Colors.black,
+                        offset: Offset(0, 0),
+                      ),
+                    ],
                 ),
-                Text('$windSpeed km/h',
-                    style: const TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.bold)),
+                Text(
+                  '$windSpeed km/h',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromRGBO(243, 236, 250, 1),
+                    shadows: [
+                      Shadow(
+                        blurRadius: 10.0,
+                        color: Colors.black,
+                        offset: Offset(0, 0),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           if (widget.cityName == "error")

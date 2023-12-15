@@ -60,7 +60,7 @@ class _WeeklyState extends State<Weekly> {
           setState(() {
             weeklyWeather = List.generate(dailyData.length, (index) {
               return {
-                "date": dailyData[index],
+                "date": dailyData[index].substring(5),
                 "minTemp": index < minTemps.length
                     ? minTemps[index].toString()
                     : "N/A",
@@ -81,57 +81,6 @@ class _WeeklyState extends State<Weekly> {
     }
   }
 
-  String getWeatherDescription(int code) {
-    if (code >= 0 && code <= 19) {
-      return "Cloudy";
-    } else if (code >= 20 && code <= 29) {
-      if (code == 20) return "Drizzle";
-      if (code == 21) return "Rain";
-      if (code == 22) return "Snow";
-      if (code == 23) return "Rain and snow";
-      if (code == 24) return "Freezing rain";
-      if (code == 25) return "Shower of rain";
-      if (code == 26) return "Shower of snow";
-      if (code == 27) return "Shower of hail";
-      if (code == 28) return "Fog";
-      if (code == 29) return "Thunderstorm";
-    } else if (code >= 30 && code <= 32) {
-      return "Slight sandstorm";
-    } else if (code >= 33 && code <= 35) {
-      return "Severe sandstorm";
-    }
-    // if (code >= 36) return "Slight blowing snow";
-    // if (code >= 37) return "Heavy drifting snow";
-    // if (code >= 38) return "Slight blowing snow";
-    // if (code >= 39) {
-    //   return "Heavy drifting snow";
-    else if (code >= 40 && code <= 49) {
-      return "Fog";
-    } else if (code >= 50 && code <= 59) {
-      return "Drizzle";
-    } else if (code >= 60 && code <= 69) {
-      return "Rain";
-    } else if (code >= 70 && code <= 79) {
-      if (code == 70) return "Intermittent fall of snowflakes";
-      if (code == 71) return "Continuous fall of snowflakes";
-      if (code == 72) return "Intermittent fall of snowflakes";
-      if (code == 73) return "Continuous fall of snowflakes";
-      if (code == 74) return "Intermittent fall of snowflakes";
-      if (code == 75) return "Continuous fall of snowflakes";
-      if (code == 76) return "Diamond dust";
-      if (code == 77) return "Snow grains";
-      if (code == 78) return "Isolated star-like snow crystals";
-      if (code == 79) return "Ice pellets";
-    } else if (code >= 80 && code <= 84) {
-      return "Rain";
-    } else if (code >= 85 && code <= 90) {
-      return "Snow";
-    } else if (code >= 95 && code <= 99) {
-      return "Thunderstorm";
-    }
-    return "Unknown";
-  }
-
   Map<String, String> parseCityName(String cityName) {
     List<String> parts = cityName.split(',').map((e) => e.trim()).toList();
     String city = parts.isNotEmpty ? parts[0] : '';
@@ -148,8 +97,8 @@ class _WeeklyState extends State<Weekly> {
   LineChartData mainData() {
     if (weeklyWeather.isEmpty) {
       return LineChartData(
-        gridData: FlGridData(show: false),
-        titlesData: FlTitlesData(show: false),
+        gridData: const FlGridData(show: false),
+        titlesData: const FlTitlesData(show: false),
         borderData: FlBorderData(show: false),
       );
     }
@@ -165,24 +114,91 @@ class _WeeklyState extends State<Weekly> {
     }
 
     return LineChartData(
+      backgroundColor: Color.fromRGBO(243, 236, 250, 1),
+      titlesData: FlTitlesData(
+        topTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: false,
+            reservedSize: 25,
+            getTitlesWidget: (value, meta) {
+              return const Text('',
+                  style: TextStyle(color: Color(0xff67727d), fontSize: 15));
+            },
+          ),
+        ),
+        bottomTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: true,
+            reservedSize: 30,
+            interval: 1,
+            getTitlesWidget: (value, meta) {
+              return Text(
+                weeklyWeather[value.toInt()]["date"],
+                style: const TextStyle(
+                  color: Color.fromRGBO(243, 236, 250, 1),
+                  fontWeight: FontWeight.bold,
+                  shadows: [
+                    Shadow(
+                      blurRadius: 10.0,
+                      color: Colors.black,
+                      offset: Offset(0, 0),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+        leftTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: true,
+            reservedSize: 25,
+            getTitlesWidget: (value, meta) {
+              return Text('${value.toInt()}°',
+                  style: const TextStyle(
+                    color: Color.fromRGBO(243, 236, 250, 1),
+                    fontWeight: FontWeight.bold,
+                    shadows: [
+                      Shadow(
+                        blurRadius: 10.0,
+                        color: Colors.black,
+                        offset: Offset(0, 0),
+                      ),
+                    ],
+                  ));
+            },
+          ),
+        ),
+        rightTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: true,
+            reservedSize: 25,
+            getTitlesWidget: (value, meta) {
+              return const Text('',
+                  style: TextStyle(color: Color(0xff67727d), fontSize: 15));
+            },
+          ),
+        ),
+      ),
+
       // ... Configuration du graphique ...
       lineBarsData: [
         LineChartBarData(
           spots: maxTempSpots,
           isCurved: true,
-          // colors: [Colors.red],
+          color: Colors.red,
           barWidth: 5,
           isStrokeCapRound: true,
-          dotData: FlDotData(show: true),
+          dotData: const FlDotData(show: true),
           belowBarData: BarAreaData(show: false),
         ),
         LineChartBarData(
           spots: minTempSpots,
           isCurved: true,
-          // colors: [Colors.blue],
+          color: Colors.blue,
           barWidth: 5,
           isStrokeCapRound: true,
-          dotData: FlDotData(show: true),
+          dotData: const FlDotData(show: true),
           belowBarData: BarAreaData(show: false),
         ),
       ],
@@ -204,54 +220,116 @@ class _WeeklyState extends State<Weekly> {
               children: [
                 Column(
                   children: [
-                    if (locationInfo['city'] != '')
-                    SizedBox(height: 20),
-                      Center(
-                        child: Text(
-                          '${locationInfo['city']}',
-                          style: const TextStyle(
-                              fontSize: 30, fontWeight: FontWeight.bold),
+                    if (locationInfo['city'] != '') const SizedBox(height: 20),
+                    Center(
+                      child: Text(
+                        '${locationInfo['city']}',
+                        style: const TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromRGBO(243, 236, 250, 1),
+                          shadows: [
+                            Shadow(
+                              blurRadius: 10.0,
+                              color: Colors.black,
+                              offset: Offset(0, 0),
+                            ),
+                          ],
                         ),
                       ),
+                    ),
                     if (locationInfo['region'] != '' &&
                         locationInfo['country'] != '')
                       Center(
                         child: Text(
                           '${locationInfo['region']}, ${locationInfo['country']}',
                           style: const TextStyle(
-                              fontSize: 20, color: Colors.amber),
+                            fontSize: 20,
+                            color: Color.fromRGBO(243, 236, 250, 1),
+                            shadows: [
+                              Shadow(
+                                blurRadius: 10.0,
+                                color: Colors.black,
+                                offset: Offset(0, 0),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                   ],
                 ),
-                SizedBox(height: 30),
+                const SizedBox(height: 30),
                 Container(
                   height: 300, // Hauteur fixe pour le graphique
                   padding: const EdgeInsets.all(8.0),
                   child: LineChart(mainData()),
                 ),
 
-                SizedBox(height: 30),
+                const SizedBox(height: 10),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: weeklyWeather.map((dayWeather) {
-                      return Card(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const SizedBox(height: 10),
-                            Text('${dayWeather["date"]}'),
-                            const SizedBox(height: 10),
-                            WeatherService.getWeatherDescriptionWidgetToday(
-                                dayWeather["weatherDescription"]),
-                            const SizedBox(height: 10),
-                            Text('${dayWeather["maxTemp"]}°C max'),
-                            Text('${dayWeather["minTemp"]}°C min'),
-                            const SizedBox(height: 10),
-                          ],
+                      return Container(
+                        width: 120,
+                        height: 150,
+                        margin: const EdgeInsets.all(0),
+                        child: Card(
+                          color: Color.fromARGB(39, 243, 236, 250),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const SizedBox(height: 10),
+                              Text(
+                                '${dayWeather["date"]}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                  color: Color.fromRGBO(243, 236, 250, 1),
+                                  // shadows: [
+                                  //   Shadow(
+                                  //     blurRadius: 10.0,
+                                  //     color: Colors.white,
+                                  //     offset: Offset(0, 0),
+                                  //   ),
+                                  // ],
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              WeatherService.getWeatherDescriptionWidgetToday(
+                                  dayWeather["weatherDescription"]),
+                              const SizedBox(height: 10),
+                              Text('${dayWeather["maxTemp"]}°C max',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                    color: Color.fromRGBO(243, 236, 250, 1),
+                                    shadows: [
+                                      Shadow(
+                                        blurRadius: 10.0,
+                                        color: Color.fromARGB(255, 240, 0, 0),
+                                        offset: Offset(0, 0),
+                                      ),
+                                    ],
+                                  )),
+                              Text('${dayWeather["minTemp"]}°C min',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                    color: Color.fromRGBO(243, 236, 250, 1),
+                                    shadows: [
+                                      Shadow(
+                                        blurRadius: 10.0,
+                                        color: Color.fromARGB(255, 0, 0, 255),
+                                        offset: Offset(0, 0),
+                                      ),
+                                    ],
+                                  )),
+                              const SizedBox(height: 10),
+                            ],
+                          ),
                         ),
                       );
                     }).toList(),

@@ -125,8 +125,15 @@ class _TodayState extends State<Today> {
             getTitlesWidget: (value, meta) {
               return Text(hourlyWeather[value.toInt()]["time"],
                   style: const TextStyle(
-                      color: Color(0xff68737d),
-                      decoration: TextDecoration.underline,
+                      color: Color.fromRGBO(243, 236, 250, 1),
+                      fontWeight: FontWeight.bold,
+                      shadows: [
+                        Shadow(
+                          blurRadius: 10.0,
+                          color: Colors.black,
+                          offset: Offset(0, 0),
+                        ),
+                      ],
                       // fontWeight: FontWeight.bold,
                       fontSize: 12));
             },
@@ -136,25 +143,32 @@ class _TodayState extends State<Today> {
           sideTitles: SideTitles(
             showTitles: true,
             reservedSize: 25,
-            interval: 0.1,
+            interval: 0.7,
             getTitlesWidget: (value, meta) {
               return Text('${value.toInt()}°',
                   style: const TextStyle(
-                      color: Color(0xff67727d),
+                      color: Color.fromRGBO(243, 236, 250, 1),
+                      fontWeight: FontWeight.bold,
+                      shadows: [
+                        Shadow(
+                          blurRadius: 10.0,
+                          color: Colors.black,
+                          offset: Offset(0, 0),
+                        ),
+                      ],
                       // decoration: TextDecoration.underline,
                       // fontWeight: FontWeight.bold,
                       fontSize: 15));
             },
           ),
         ),
-        rightTitles:  AxisTitles(
+        rightTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
             getTitlesWidget: (value, meta) {
-              return Text('');
-              
+              return const Text('');
             },
-            ),
+          ),
         ),
         topTitles: const AxisTitles(
           sideTitles: SideTitles(showTitles: false),
@@ -171,13 +185,13 @@ class _TodayState extends State<Today> {
           .reduce(math.max),
       lineBarsData: [
         LineChartBarData(
-          // aboveBarData: BarAreaData(show: true, colors: [Colors.amber.withOpacity(0.5)]),
+          // aboveBarData: BarAreaData(show: true, color: Colors.orange, cutOffY: 100),
           // belowBarData: BarAreaData(show: true, colors: [Colors.amber.withOpacity(0.5)]),
           spots: spots,
           isCurved: true,
           preventCurveOverShooting: true,
           curveSmoothness: 0.5,
-          color: Colors.amber,
+          color: Colors.black,
           barWidth: 2,
           isStrokeCapRound: true,
           dotData: const FlDotData(show: true),
@@ -202,7 +216,17 @@ class _TodayState extends State<Today> {
                   child: Text(
                     '${locationInfo['city']}',
                     style: const TextStyle(
-                        fontSize: 30, fontWeight: FontWeight.bold),
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromRGBO(243, 236, 250, 1),
+                      shadows: [
+                        Shadow(
+                          blurRadius: 10.0,
+                          color: Colors.black,
+                          offset: Offset(0, 0),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 5),
@@ -211,11 +235,20 @@ class _TodayState extends State<Today> {
                   Center(
                     child: Text(
                       '${locationInfo['region']}, ${locationInfo['country']}',
-                      style: const TextStyle(fontSize: 20, color: Colors.amber),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        color: Color.fromRGBO(243, 236, 250, 1),
+                        shadows: [
+                          Shadow(
+                            blurRadius: 10.0,
+                            color: Colors.black,
+                            offset: Offset(0, 0),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 // ============================================================
-                
 
                 const SizedBox(height: 20),
                 SizedBox(
@@ -232,7 +265,7 @@ class _TodayState extends State<Today> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: hourlyWeather.map((hourData) {
                       return Card(
-                        color: const Color.fromRGBO(243, 236, 250, 1),
+                        color: Color.fromARGB(39, 243, 236, 250),
                         margin: const EdgeInsets.all(5),
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -243,7 +276,9 @@ class _TodayState extends State<Today> {
                               Text('${hourData["time"]}',
                                   style: const TextStyle(
                                       fontSize: 18,
-                                      fontWeight: FontWeight.bold)),
+                                      fontWeight: FontWeight.bold,
+                                      color:Color.fromRGBO(243, 236, 250, 1),
+                                      )),
                               const SizedBox(height: 10),
                               WeatherService.getWeatherDescriptionWidgetToday(
                                   hourData["weatherCode"]),
@@ -251,17 +286,25 @@ class _TodayState extends State<Today> {
                               Text('${hourData["temperature"]}°C',
                                   style: const TextStyle(
                                       fontSize: 18,
-                                      fontWeight: FontWeight.bold)),
+                                      fontWeight: FontWeight.bold,
+                                      color:Color.fromRGBO(243, 236, 250, 1),
+                                      )),
                               const SizedBox(height: 10),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  const Icon(Icons.wind_power, size: 15),
+                                  const Icon(
+                                    Icons.wind_power,
+                                    size: 15,
+                                    color:Color.fromRGBO(243, 236, 250, 1),
+                                  ),
                                   Text('${hourData["windSpeed"]} km/h',
                                       style: const TextStyle(
                                           fontSize: 15,
-                                          fontWeight: FontWeight.bold)),
+                                          fontWeight: FontWeight.bold,
+                                          color:Color.fromRGBO(243, 236, 250, 1),
+                                          )),
                                 ],
                               ),
                             ],

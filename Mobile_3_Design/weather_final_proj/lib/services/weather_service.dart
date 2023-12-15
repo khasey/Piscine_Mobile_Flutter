@@ -1,51 +1,41 @@
 import 'package:flutter/material.dart';
 
 class WeatherService {
-  static Widget getWeatherDescriptionWidget(int code){
+  static Widget getWeatherDescriptionWidget(int code) {
     IconData icon;
     String description;
 
-    if(code >= 0 &&  code <= 1){
+    if (code >= 0 && code <= 1) {
       icon = Icons.sunny;
       description = "Sunny";
-    }
-    else if(code >= 2 && code <= 3){
+    } else if (code >= 2 && code <= 3) {
       icon = Icons.water_drop;
       description = "Drizzle";
-    }
-    else if(code >= 4 && code  <= 5){
+    } else if (code >= 4 && code <= 5) {
       icon = Icons.cloud;
       description = "Cloudy";
-    }
-    else if(code >= 6 && code  <= 11){
+    } else if (code >= 6 && code <= 11) {
       icon = Icons.foggy;
       description = "Foggy";
-    }
-    else if(code >= 20 && code <= 29){
+    } else if (code >= 20 && code <= 29) {
       icon = Icons.cloudy_snowing;
       description = "Snow rainy";
-    }
-     else if(code >= 30 && code <= 49){
+    } else if (code >= 30 && code <= 49) {
       icon = Icons.cloudy_snowing;
       description = "Snow";
-    }
-    else if (code >= 50 && code  <= 59){
+    } else if (code >= 50 && code <= 59) {
       icon = Icons.foggy;
       description = "Hazy";
-    }
-    else if (code >= 60 && code  <= 69){
+    } else if (code >= 60 && code <= 69) {
       icon = Icons.cloud_rounded;
       description = "Rainy";
-    }
-    else if (code >= 70 && code  <= 79){
+    } else if (code >= 70 && code <= 79) {
       icon = Icons.snowing;
       description = "Snowing";
-    }
-    else if (code >= 80 && code  <= 99){
+    } else if (code >= 80 && code <= 99) {
       icon = Icons.wb_cloudy_rounded;
       description = "Pouring";
-    }
-    else{
+    } else {
       icon = Icons.tornado;
       description = "Erreur de code";
     }
@@ -53,59 +43,73 @@ class WeatherService {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(description, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        SizedBox(height: 10),
-        Icon(icon, size: 100, color: Colors.amber),
+        Text(
+          description,
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Color.fromRGBO(243, 236, 250, 1),
+            shadows: [
+              Shadow(
+                blurRadius: 10.0,
+                color: Colors.black,
+                offset: Offset(0, 0),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+        Icon(
+          icon,
+          size: 100,
+          color: const Color.fromRGBO(243, 236, 250, 1),
+          shadows: const [
+            Shadow(
+              blurRadius: 10.0,
+              color: Colors.black,
+              offset: Offset(0, 0),
+            ),
+          ],
+        ),
       ],
     );
   }
 
-
-  static Widget getWeatherDescriptionWidgetToday(int code){
+  static Widget getWeatherDescriptionWidgetToday(int code) {
     IconData icon;
     String description;
 
-    if(code >= 0 &&  code <= 1){
+    if (code >= 0 && code <= 1) {
       icon = Icons.sunny;
       description = "Sunny";
-    }
-    else if(code >= 2 && code <= 3){
+    } else if (code >= 2 && code <= 3) {
       icon = Icons.water_drop;
       description = "Drizzle";
-    }
-    else if(code >= 4 && code  <= 5){
+    } else if (code >= 4 && code <= 5) {
       icon = Icons.cloud;
       description = "Cloudy";
-    }
-    else if(code >= 6 && code  <= 11){
+    } else if (code >= 6 && code <= 11) {
       icon = Icons.foggy;
       description = "Foggy";
-    }
-    else if(code >= 20 && code <= 29){
+    } else if (code >= 20 && code <= 29) {
       icon = Icons.cloudy_snowing;
       description = "Snow rainy";
-    }
-    else if(code >= 30 && code <= 49){
+    } else if (code >= 30 && code <= 49) {
       icon = Icons.cloudy_snowing;
       description = "Snow";
-    }
-    else if (code >= 50 && code  <= 59){
+    } else if (code >= 50 && code <= 59) {
       icon = Icons.foggy;
       description = "Hazy";
-    }
-    else if (code >= 60 && code  <= 69){
+    } else if (code >= 60 && code <= 69) {
       icon = Icons.cloud_rounded;
       description = "Rainy";
-    }
-    else if (code >= 70 && code  <= 79){
+    } else if (code >= 70 && code <= 79) {
       icon = Icons.snowing;
       description = "Snowing";
-    }
-    else if (code >= 80 && code  <= 99){
+    } else if (code >= 80 && code <= 99) {
       icon = Icons.wb_cloudy_rounded;
       description = "Pouring";
-    }
-    else{
+    } else {
       icon = Icons.tornado;
       description = "Erreur de code";
     }
@@ -115,7 +119,7 @@ class WeatherService {
       children: [
         // Text(description, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         // SizedBox(height: 10),
-        Icon(icon, size: 30),
+        Icon(icon, size: 30, color: Colors.white),
       ],
     );
   }

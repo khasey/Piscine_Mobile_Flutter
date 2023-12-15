@@ -11,20 +11,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      // foregroundDecoration: const BoxDecoration(
-      //   image: DecorationImage(
-      //     alignment: Alignment.center,
-      //     image: AssetImage("assets/back.jpg"),
-      //     fit: BoxFit.cover,
-      //   ),
-      // ),
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          alignment: Alignment.center,
-          image: AssetImage("assets/back.jpg"),
-          fit: BoxFit.cover,
-        ),
-      ),
       child: MaterialApp(
         title: 'Meteo App',
         theme: ThemeData(
