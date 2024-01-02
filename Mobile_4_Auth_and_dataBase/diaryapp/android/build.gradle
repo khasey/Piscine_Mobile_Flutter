@@ -1,0 +1,37 @@
+// Top of your build.gradle file
+buildscript {
+    ext.kotlin_version = '1.7.10' // Assurez-vous que cette version est compatible avec votre projet
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.2.2' // Utilisez la version appropriée pour votre projet
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        // Ajoutez d'autres classpaths si nécessaire
+    }
+}
+
+plugins {
+    id 'com.google.gms.google-services' version '4.4.0' apply false
+    // Autres plugins si nécessaire
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        // Ajoutez d'autres référentiels si nécessaire
+    }
+}
+
+rootProject.buildDir = '../build'
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+    project.evaluationDependsOn(':app')
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}
