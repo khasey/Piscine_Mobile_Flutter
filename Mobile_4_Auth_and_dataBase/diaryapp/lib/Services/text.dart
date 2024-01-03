@@ -1,4 +1,3 @@
-import 'package:diaryapp/Services/profile.dart';
 import 'package:flutter/material.dart';
 
 class TextEdit extends StatefulWidget {
@@ -11,7 +10,7 @@ class TextEdit extends StatefulWidget {
 class _TextEditState extends State<TextEdit> {
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
       child: SizedBox(
@@ -30,7 +29,7 @@ class _TextEditState extends State<TextEdit> {
                   
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
             ],
           ),
         ),

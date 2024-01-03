@@ -17,10 +17,12 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   Future<void> signInWithGoogle() async {
     try {
+      print('Connexion Google en cours...');
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      print('googleUser --->>>> $googleUser');
 
       if (googleUser == null) return; // L'utilisateur a annulé la connexion
-
+        print('Connexion Google annulée par l\'utilisateur');
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
 
@@ -30,13 +32,14 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       await FirebaseAuth.instance.signInWithCredential(credential);
-
+      print('Connexion réussie');
       // Redirection vers la page d'accueil après la connexion réussie
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const DiaryPage()),
       );
     } catch (error) {
+      print('Erreur ----> BITE');
       // Gérer l'erreur ici
       print('Erreur de connexion Google: $error');
     }
@@ -61,7 +64,7 @@ class _LoginPageState extends State<LoginPage> {
 
         // Tentative de connexion à Firebase
         await FirebaseAuth.instance.signInWithCredential(credential);
-        print('Connexion réussie');
+        print('Connexion Github réussie');
         // Redirection vers la page d'accueil après connexion réussie
         Navigator.pushReplacement(
           context,
@@ -208,7 +211,7 @@ class _LoginPageState extends State<LoginPage> {
                       ],
                     )),
               ),
-              SizedBox(height: 40),
+              const SizedBox(height: 40),
             ],
           )),
     );

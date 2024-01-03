@@ -76,24 +76,28 @@ class _DialogEntryState extends State<DialogEntry> {
     super.dispose();
   }
 
-  Future<void> saveEntry() async {
-    String? userId = FirebaseAuth.instance.currentUser?.uid;
-    if (userId != null) {
-      try {
-        await FirebaseFirestore.instance.collection('notes').doc().set({
-          'userId': userId,
-          'title': titleController.text,
-          'entry': entryController.text,
-          'timestamp': FieldValue.serverTimestamp(),
-        });
-        Navigator.pop(context);
-      } catch (e) {
-        print('Erreur lors de la sauvegarde des données : $e');
-      }
-    } else {
-      print('Utilisateur non connecté');
+Future<void> saveEntry() async {
+  User? currentUser = FirebaseAuth.instance.currentUser;
+  if (currentUser != null && currentUser.email != null) {
+    try {
+      await FirebaseFirestore.instance.collection('notes').doc().set({
+        'userMail': currentUser.email, // Adresse e-mail de l'utilisateur
+        'title': titleController.text, // Titre de l'entrée
+        'text': entryController.text, // Texte de l'entrée
+        'date': DateTime.now(), // Date actuelle
+        'icon': '☕', // Icône (remplacer par l'icône souhaitée)
+        'timestamp': FieldValue.serverTimestamp(), // Timestamp du serveur
+      });
+      Navigator.pop(context);
+    } catch (e) {
+      print('Erreur lors de la sauvegarde des données : $e');
     }
+  } else {
+    print('Utilisateur non connecté');
   }
+}
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -145,9 +149,9 @@ class _DialogEntryState extends State<DialogEntry> {
                 elevation: 5,
                 shadowColor: Colors.black,
               ),
+              onPressed: saveEntry,
               child: const Text('ADD ENTRY',
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-              onPressed: saveEntry,
             ),
           ],
         ),
