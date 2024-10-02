@@ -17,7 +17,7 @@ class _BottomBarState extends State<BottomBar> {
   final TextEditingController cityController = TextEditingController();
 
   final PageController pageController = PageController();
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -84,7 +84,7 @@ class _BottomBarState extends State<BottomBar> {
           ),
           NavigationDestination(
             selectedIcon: Icon(Icons.calendar_today),
-            icon: Badge(child: Icon(Icons.calendar_today_outlined)),
+            icon: Icon(Icons.calendar_today),
             label: 'Today',
           ),
           NavigationDestination(

@@ -7,12 +7,13 @@ class Currently extends StatefulWidget {
   final String cityName;
   final double? latitude;
   final double? longitude;
-  
+  final String? errorMessageGeolocation;  // Modifié pour accepter null
 
   const Currently(
       {super.key,
       required this.isGeoLocationEnabled,
       required this.cityName,
+      this.errorMessageGeolocation,  // Permet que ce soit nullable
       this.latitude,
       this.longitude});
 
@@ -39,9 +40,9 @@ class _CurrentlyState extends State<Currently> {
     }
   }
 
-void showError(String message) {
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-}
+  void showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
 
   Future<void> getWeather() async {
     if (widget.latitude == null || widget.longitude == null) return;
@@ -55,8 +56,7 @@ void showError(String message) {
           temperature = data['hourly']['temperature_2m'][0].toString();
           windSpeed = data['hourly']['windspeed_10m'][0].toString();
         });
-      }
-      else{
+      } else {
         showError('Failed to fetch weather');
       }
     } catch (e) {
@@ -65,50 +65,44 @@ void showError(String message) {
   }
 
   Map<String, String> parseCityName(String cityName) {
-  List<String> parts = cityName.split(',').map((e) => e.trim()).toList();
-  print(parts);
-  String city = parts.length > 0 ? parts[0] : '';
-  String region = parts.length > 1 ? parts[1] : '';
-  String country = parts.length > 2 ? parts[2] : '';
+    List<String> parts = cityName.split(',').map((e) => e.trim()).toList();
+    String city = parts.isNotEmpty ? parts[0] : '';
+    String region = parts.length > 1 ? parts[1] : '';
+    String country = parts.length > 2 ? parts[2] : '';
 
-  return {
-    'city': city,
-    'region': region,
-    'country': country,
-  };
-}
-
+    return {
+      'city': city,
+      'region': region,
+      'country': country,
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
     Map<String, String> locationInfo = parseCityName(widget.cityName);
+
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          if (locationInfo['city'] != '')
-            Text('${locationInfo['city']}',
-                style: const TextStyle(fontSize: 20)),
-          if (locationInfo['region'] != '')
-            Text('${locationInfo['region']}',
-                style: const TextStyle(fontSize: 20)),
-          if (locationInfo['country'] != '')
-            Text('${locationInfo['country']}',
-                style: const TextStyle(fontSize: 20)),
-          if (temperature != null)
-            Text('$temperature °C',
-                style: const TextStyle(fontSize: 20)),
-          if (windSpeed != null)
-            Text('$windSpeed km/h',
-                style: const TextStyle(fontSize: 20)),
-          if (widget.cityName == "error")
-            const Text(
-              'Geolocation is not available, please enable it on your app setting',
-              style: TextStyle(fontSize: 20, color: Colors.red),
+      child: widget.errorMessageGeolocation != null && widget.errorMessageGeolocation!.isNotEmpty
+          ? Text(
+              widget.errorMessageGeolocation!,
+              style: const TextStyle(fontSize: 20, color: Colors.red),
               textAlign: TextAlign.center,
+            )
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                if (locationInfo['city'] != '')
+                  Text('${locationInfo['city']}', style: const TextStyle(fontSize: 20)),
+                if (locationInfo['region'] != '')
+                  Text('${locationInfo['region']}', style: const TextStyle(fontSize: 20)),
+                if (locationInfo['country'] != '')
+                  Text('${locationInfo['country']}', style: const TextStyle(fontSize: 20)),
+                if (temperature != null)
+                  Text('$temperature °C', style: const TextStyle(fontSize: 20)),
+                if (windSpeed != null)
+                  Text('$windSpeed km/h', style: const TextStyle(fontSize: 20)),
+              ],
             ),
-        ],
-      ),
     );
   }
 }

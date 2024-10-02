@@ -7,11 +7,13 @@ class Today extends StatefulWidget {
   final String cityName;
   final double? latitude;
   final double? longitude;
+  final String? errorMessageGeolocation;  // Variable pour l'erreur de géolocalisation
 
   const Today(
       {super.key,
       required this.isGeoLocationEnabled,
       required this.cityName,
+      this.errorMessageGeolocation,  // Ajout de la variable d'erreur
       this.latitude,
       this.longitude});
 
@@ -38,8 +40,8 @@ class _TodayState extends State<Today> {
   }
 
   void showError(String message) {
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-}
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
 
   Future<void> getWeather() async {
     if (widget.latitude == null || widget.longitude == null) return;
@@ -74,8 +76,7 @@ class _TodayState extends State<Today> {
         setState(() {
           hourlyWeather = tempHourlyWeather; // Affecter à la variable d'état
         });
-      }
-      else{
+      } else {
         showError('Failed to fetch weather');
       }
     } catch (e) {
@@ -102,52 +103,59 @@ class _TodayState extends State<Today> {
     Map<String, String> locationInfo = parseCityName(widget.cityName);
 
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center, // Centre verticalement
-        children: <Widget>[
-          Expanded(
-            // Permet à la ListView de prendre tout l'espace vertical disponible
-            child: ListView(
+      body: widget.errorMessageGeolocation != null && widget.errorMessageGeolocation!.isNotEmpty
+          ? Center(
+              child: Text(
+                widget.errorMessageGeolocation!,
+                style: const TextStyle(color: Colors.red, fontSize: 20),
+                textAlign: TextAlign.center,
+              ),
+            )
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.center, // Centre verticalement
               children: <Widget>[
-                if (locationInfo['city']!.isNotEmpty)
-                  Center(
-                    // Centre horizontalement
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          '${locationInfo['city']}',
-                          style: const TextStyle(fontSize: 20),
+                Expanded(
+                  // Permet à la ListView de prendre tout l'espace vertical disponible
+                  child: ListView(
+                    children: <Widget>[
+                      if (locationInfo['city']!.isNotEmpty)
+                        Center(
+                          // Centre horizontalement
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                '${locationInfo['city']}',
+                                style: const TextStyle(fontSize: 20),
+                              ),
+                              Text(
+                                '${locationInfo['region']}',
+                                style: const TextStyle(fontSize: 20),
+                              ),
+                              Text(
+                                '${locationInfo['country']}',
+                                style: const TextStyle(fontSize: 20),
+                              ),
+                            ],
+                          ),
                         ),
-                        Text(
-                          '${locationInfo['region']}',
-                          style: const TextStyle(fontSize: 20),
+                      for (var hourData in hourlyWeather)
+                        Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                '${hourData["time"]} ${hourData["temperature"]}°C ${hourData["windSpeed"]} km/h',
+                                style: const TextStyle(fontSize: 20),
+                              ),
+                            ],
+                          ),
                         ),
-                        Text(
-                          '${locationInfo['country']}',
-                          style: const TextStyle(fontSize: 20),
-                        ),
-                      ],
-                    ),
+                    ],
                   ),
-                // Répétez ce schéma pour les autres éléments (région et pays)
-                for (var hourData in hourlyWeather)
-                  Center(
-                    child:Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          '${hourData["time"]} ${hourData["temperature"]}°C ${hourData["windSpeed"]} km/h',
-                          style: const TextStyle(fontSize: 20),
-                        ),
-                      ],
-                    ),
-                    ),// Centre horizontalement
+                ),
               ],
             ),
-          ),
-        ],
-      ),
     );
   }
 }

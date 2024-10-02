@@ -23,8 +23,12 @@ class _BottomBarState extends State<BottomBar> {
   double? selectedLongitude;
   String selectionFull = '';
   final PageController pageController = PageController();
+  String? errorMessageGeolocation;
 
   void showError(String message) {
+    setState(() {
+      errorMessageGeolocation = message;
+    });
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
 }
 
@@ -41,7 +45,6 @@ class _BottomBarState extends State<BottomBar> {
     });
   } else {
     showError('Failed to fetch location details');
-    // Gérer l'erreur ici
   }
 }
 
@@ -60,6 +63,7 @@ class _BottomBarState extends State<BottomBar> {
         return [];
       }
         return results.map((item) {
+          // print("latidude: ${item['latitude']}, longitude: ${item['longitude']}");
           String name = item['name'];
           String region = item.containsKey('admin1') ? item['admin1'] : '';
           String country = item.containsKey('country') ? item['country'] : '';
@@ -75,7 +79,7 @@ class _BottomBarState extends State<BottomBar> {
           };
         }).toList();
       } else {
-        showError("Connection to the API failed.");
+        // showError("Connection to the API failed.");
         return [];
       }
     } else {
@@ -84,6 +88,7 @@ class _BottomBarState extends State<BottomBar> {
     }
   }
 
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,6 +108,8 @@ class _BottomBarState extends State<BottomBar> {
               selectedLatitude = selection['latitude'];
               selectedLongitude = selection['longitude'];
               selectionFull = selectedCity+ ", " + selectedRegion + ", " + selectedCountry;
+              errorMessageGeolocation = null;
+              print("voici la latitude ===> $selectedLatitude, et la longitude ===> $selectedLongitude");
               
             });
           },
@@ -158,9 +165,10 @@ class _BottomBarState extends State<BottomBar> {
                   selectedLatitude = position.latitude;
                   selectedLongitude = position.longitude;
                   isGeoLocationEnabled = true;
+                  errorMessageGeolocation = null;
                 });
               } catch (e) {
-                print(e);
+                showError('Geolocation is not available, please enable it in your app settings');
               }
             },
           ),
@@ -179,19 +187,22 @@ class _BottomBarState extends State<BottomBar> {
 
             latitude: selectedLatitude,
             longitude: selectedLongitude,
-            isGeoLocationEnabled: isGeoLocationEnabled
+            isGeoLocationEnabled: isGeoLocationEnabled,
+            errorMessageGeolocation : errorMessageGeolocation
           ),
           Today(
             cityName: selectionFull,
             latitude: selectedLatitude,
             longitude: selectedLongitude,
-            isGeoLocationEnabled: isGeoLocationEnabled
+            isGeoLocationEnabled: isGeoLocationEnabled,
+            errorMessageGeolocation : errorMessageGeolocation
           ),
           Weekly(
             cityName: selectionFull,
             latitude: selectedLatitude,
             longitude: selectedLongitude,
-            isGeoLocationEnabled: isGeoLocationEnabled
+            isGeoLocationEnabled: isGeoLocationEnabled,
+            errorMessageGeolocation : errorMessageGeolocation
           ),
         ],
       ),
@@ -245,6 +256,7 @@ class _BottomBarState extends State<BottomBar> {
     }
 
     if (permission == LocationPermission.deniedForever) {
+      // errorMessageGeolocation = 'Geolocation is not available, please enable it in your App Settings';
       return Future.error(
           'Location permissions are permanently denied, we cannot request permissions.');
     }
