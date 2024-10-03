@@ -24,32 +24,31 @@ class _BottomBarState extends State<BottomBar> {
   double? selectedLongitude;
   String selectionFull = '';
   final PageController pageController = PageController();
+  String? errorMessageGeolocation;
 
   void showError(String message) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
-  }
+    setState(() {
+      errorMessageGeolocation = message;
+    });
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+}
+
 
   Future<void> getLocationDetails(double latitude, double longitude) async {
-    final response = await http.get(Uri.parse(
-        'http://nominatim.openstreetmap.org/reverse?format=json&lat=$latitude&lon=$longitude&zoom=18&addressdetails=1'));
+  final response = await http.get(Uri.parse('http://nominatim.openstreetmap.org/reverse?format=json&lat=$latitude&lon=$longitude&zoom=18&addressdetails=1'));
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      setState(() {
-        selectedCity = data['address']['village'] ??
-            data['address']['town'] ??
-            data['address']['city'] ??
-            '';
-        selectedRegion = data['address']['state'] ?? '';
-        selectedCountry = data['address']['country'] ?? '';
-        selectionFull = "$selectedCity, $selectedRegion, $selectedCountry";
-      });
-    } else {
-      showError('Failed to fetch location details');
-      // Gérer l'erreur ici
-    }
+  if (response.statusCode == 200) {
+    final data = json.decode(response.body);
+    setState(() {
+      selectedCity = data['address']['village'] ?? data['address']['town'] ?? data['address']['city'] ?? '';
+      selectedRegion = data['address']['state'] ?? '';
+      selectedCountry = data['address']['country'] ?? '';
+      selectionFull = "$selectedCity, $selectedRegion, $selectedCountry";
+    });
+  } else {
+    showError('Failed to fetch location details');
   }
+}
 
   Future<List<Map<String, dynamic>>> searchCities(String query) async {
     final response = await http.get(Uri.parse(
@@ -60,11 +59,12 @@ class _BottomBarState extends State<BottomBar> {
       if (data != null && data.containsKey('results')) {
         List<dynamic> results = data['results'];
         if (results.isEmpty) {
-          // Gestion de la ville inexistante
-          showError("City name not valid.");
-          return [];
-        }
+        // Gestion de la ville inexistante
+        showError("City name not valid.");
+        return [];
+      }
         return results.map((item) {
+          // print("latidude: ${item['latitude']}, longitude: ${item['longitude']}");
           String name = item['name'];
           String region = item.containsKey('admin1') ? item['admin1'] : '';
           String country = item.containsKey('country') ? item['country'] : '';
@@ -110,8 +110,11 @@ class _BottomBarState extends State<BottomBar> {
               selectedLongitude = selection['longitude'];
               selectionFull =
                   "$selectedCity, $selectedRegion, $selectedCountry";
+              errorMessageGeolocation = null;
+              print("voici la latitude ===> $selectedLatitude, et la longitude ===> $selectedLongitude");
             });
           },
+          // Met à jour le champ de texte avec la ville sélectionnée
           fieldViewBuilder:
               (context, textEditingController, focusNode, onFieldSubmitted) {
             textEditingController.text = selectionFull;
@@ -126,6 +129,7 @@ class _BottomBarState extends State<BottomBar> {
               ),
             );
           },
+          // Affichage des résultats sous forme de liste
           optionsViewBuilder: (context, onSelected, options) {
             return Align(
               alignment: Alignment.topLeft,
@@ -170,10 +174,10 @@ class _BottomBarState extends State<BottomBar> {
                   selectedLatitude = position.latitude;
                   selectedLongitude = position.longitude;
                   isGeoLocationEnabled = true;
+                  errorMessageGeolocation = null;
                 });
               } catch (e) {
-                // ignore: avoid_print
-                print(e);
+                 showError('Geolocation is not available, please enable it in your app settings');
               }
             },
           ),
@@ -200,18 +204,21 @@ class _BottomBarState extends State<BottomBar> {
               latitude: selectedLatitude,
               longitude: selectedLongitude,
               isGeoLocationEnabled: isGeoLocationEnabled,
+              errorMessageGeolocation : errorMessageGeolocation,
             ),
             Today(
               cityName: selectionFull,
               latitude: selectedLatitude,
               longitude: selectedLongitude,
               isGeoLocationEnabled: isGeoLocationEnabled,
+              errorMessageGeolocation : errorMessageGeolocation,
             ),
             Weekly(
               cityName: selectionFull,
               latitude: selectedLatitude,
               longitude: selectedLongitude,
               isGeoLocationEnabled: isGeoLocationEnabled,
+              errorMessageGeolocation : errorMessageGeolocation,
             ),
           ],
         ),
@@ -250,24 +257,25 @@ class _BottomBarState extends State<BottomBar> {
 //avoir la localisation de l'utilisateur et l'afficher dans le champ de recherche
 
 Future<Position> _determinePosition() async {
-  bool serviceEnabled;
-  LocationPermission permission;
-  serviceEnabled = await Geolocator.isLocationServiceEnabled();
-  if (!serviceEnabled) {
-    return Future.error('Location services are disabled.');
-  }
-
-  permission = await Geolocator.checkPermission();
-  if (permission == LocationPermission.denied) {
-    permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.denied) {
-      return Future.error('Location permissions are denied');
+    bool serviceEnabled;
+    LocationPermission permission;
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
     }
-  }
 
-  if (permission == LocationPermission.deniedForever) {
-    return Future.error(
-        'Location permissions are permanently denied, we cannot request permissions.');
-  }
-  return await Geolocator.getCurrentPosition();
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // errorMessageGeolocation = 'Geolocation is not available, please enable it in your App Settings';
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+    return await Geolocator.getCurrentPosition();
 }

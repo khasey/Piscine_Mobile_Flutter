@@ -9,11 +9,13 @@ class Currently extends StatefulWidget {
   final String cityName;
   final double? latitude;
   final double? longitude;
+  final String? errorMessageGeolocation; // Ajout de la variable d'erreur
 
   const Currently(
       {super.key,
       required this.isGeoLocationEnabled,
       required this.cityName,
+      this.errorMessageGeolocation,  // Ajout de la variable d'erreur ici
       this.latitude,
       this.longitude});
 
@@ -60,21 +62,17 @@ class _CurrentlyState extends State<Currently> {
           temperature = data['hourly']['temperature_2m'][0].toString();
           windSpeed = data['hourly']['windspeed_10m'][0].toString();
           code = data['hourly']['weather_code'][0];
-          // weatherCodeValue = getWeatherDescription(code);
         });
       } else {
         showError('Failed to fetch weather');
       }
     } catch (e) {
-      // ignore: avoid_print
       print('Error fetching weather: $e');
     }
   }
 
   Map<String, String> parseCityName(String cityName) {
     List<String> parts = cityName.split(',').map((e) => e.trim()).toList();
-    // ignore: avoid_print
-    print(parts);
     String city = parts.isNotEmpty ? parts[0] : '';
     String region = parts.length > 1 ? parts[1] : '';
     String country = parts.length > 2 ? parts[2] : '';
@@ -89,116 +87,123 @@ class _CurrentlyState extends State<Currently> {
   @override
   Widget build(BuildContext context) {
     Map<String, String> locationInfo = parseCityName(widget.cityName);
+
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (locationInfo['city'] != '')
-            Center(
-              child: Text(
-                '${locationInfo['city']}',
-                style: const TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                  color: Color.fromRGBO(243, 236, 250, 1),
-                  shadows: [
-                    Shadow(
-                      blurRadius: 10.0,
-                      color: Colors.black,
-                      offset: Offset(0, 0),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          if (locationInfo['region'] != '' && locationInfo['country'] != '')
-            Center(
-              child: Text(
-                '${locationInfo['region']}, ${locationInfo['country']}',
+      body: Center(
+        child: widget.errorMessageGeolocation != null && widget.errorMessageGeolocation!.isNotEmpty
+            ? Text(
+                widget.errorMessageGeolocation!, // Affiche le message d'erreur centré
                 style: const TextStyle(
                   fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Color.fromRGBO(243, 236, 250, 1),
-                  shadows: [
-                    Shadow(
-                      blurRadius: 10.0,
-                      color: Colors.black,
-                      offset: Offset(0, 0),
-                    ),
-                  ],
+                  color: Colors.red,
                 ),
-              ),
-            ),
-          const SizedBox(
-            height: 20,
-          ),
-          if (temperature != null)
-            Center(
-              child: Text(
-                '$temperature °C',
-                style: const TextStyle(
-                  fontSize: 50,
-                  fontWeight: FontWeight.bold,
-                  color: Color.fromRGBO(243, 236, 250, 1),
-                  shadows: [
-                    Shadow(
-                      blurRadius: 10.0,
-                      color: Colors.black,
-                      offset: Offset(0, 0),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          const SizedBox(
-            height: 20,
-          ),
-          if (windSpeed != null)
-            WeatherService.getWeatherDescriptionWidget(code!),
-          const SizedBox(
-            height: 20,
-          ),
-          if (windSpeed != null)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.wind_power_rounded,
-                  size: 30,
-                  color: Color.fromRGBO(243, 236, 250, 1),
-                  shadows: [
-                      Shadow(
-                        blurRadius: 10.0,
-                        color: Colors.black,
-                        offset: Offset(0, 0),
+                textAlign: TextAlign.center,
+              )
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (locationInfo['city'] != '')
+                    Center(
+                      child: Text(
+                        '${locationInfo['city']}',
+                        style: const TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromRGBO(243, 236, 250, 1),
+                          shadows: [
+                            Shadow(
+                              blurRadius: 10.0,
+                              color: Colors.black,
+                              offset: Offset(0, 0),
+                            ),
+                          ],
+                        ),
                       ),
-                    ],
-                ),
-                Text(
-                  '$windSpeed km/h',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Color.fromRGBO(243, 236, 250, 1),
-                    shadows: [
-                      Shadow(
-                        blurRadius: 10.0,
-                        color: Colors.black,
-                        offset: Offset(0, 0),
+                    ),
+                  if (locationInfo['region'] != '' &&
+                      locationInfo['country'] != '')
+                    Center(
+                      child: Text(
+                        '${locationInfo['region']}, ${locationInfo['country']}',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromRGBO(243, 236, 250, 1),
+                          shadows: [
+                            Shadow(
+                              blurRadius: 10.0,
+                              color: Colors.black,
+                              offset: Offset(0, 0),
+                            ),
+                          ],
+                        ),
                       ),
-                    ],
+                    ),
+                  const SizedBox(
+                    height: 20,
                   ),
-                ),
-              ],
-            ),
-          if (widget.cityName == "error")
-            const Text(
-              'Geolocation is not available, please enable it on your app setting',
-              style: TextStyle(fontSize: 20, color: Colors.red),
-              textAlign: TextAlign.center,
-            ),
-        ],
+                  if (temperature != null)
+                    Center(
+                      child: Text(
+                        '$temperature °C',
+                        style: const TextStyle(
+                          fontSize: 50,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromRGBO(243, 236, 250, 1),
+                          shadows: [
+                            Shadow(
+                              blurRadius: 10.0,
+                              color: Colors.black,
+                              offset: Offset(0, 0),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  if (windSpeed != null)
+                    WeatherService.getWeatherDescriptionWidget(code!),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  if (windSpeed != null)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.wind_power_rounded,
+                          size: 30,
+                          color: Color.fromRGBO(243, 236, 250, 1),
+                          shadows: [
+                            Shadow(
+                              blurRadius: 10.0,
+                              color: Colors.black,
+                              offset: Offset(0, 0),
+                            ),
+                          ],
+                        ),
+                        Text(
+                          '$windSpeed km/h',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Color.fromRGBO(243, 236, 250, 1),
+                            shadows: [
+                              Shadow(
+                                blurRadius: 10.0,
+                                color: Colors.black,
+                                offset: Offset(0, 0),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
       ),
     );
   }

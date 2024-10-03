@@ -11,11 +11,13 @@ class Today extends StatefulWidget {
   final String cityName;
   final double? latitude;
   final double? longitude;
+  final String? errorMessageGeolocation;
 
   const Today(
       {super.key,
       required this.isGeoLocationEnabled,
       required this.cityName,
+      this.errorMessageGeolocation,
       this.latitude,
       this.longitude});
 
@@ -134,7 +136,6 @@ class _TodayState extends State<Today> {
                           offset: Offset(0, 0),
                         ),
                       ],
-                      // fontWeight: FontWeight.bold,
                       fontSize: 12));
             },
           ),
@@ -156,8 +157,6 @@ class _TodayState extends State<Today> {
                           offset: Offset(0, 0),
                         ),
                       ],
-                      // decoration: TextDecoration.underline,
-                      // fontWeight: FontWeight.bold,
                       fontSize: 15));
             },
           ),
@@ -185,8 +184,6 @@ class _TodayState extends State<Today> {
           .reduce(math.max),
       lineBarsData: [
         LineChartBarData(
-          // aboveBarData: BarAreaData(show: true, color: Colors.orange, cutOffY: 100),
-          // belowBarData: BarAreaData(show: true, colors: [Colors.amber.withOpacity(0.5)]),
           spots: spots,
           isCurved: true,
           preventCurveOverShooting: true,
@@ -206,119 +203,134 @@ class _TodayState extends State<Today> {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView(
+      body: widget.errorMessageGeolocation != null &&
+              widget.errorMessageGeolocation!.isNotEmpty
+          ? Center(
+              child: Text(
+                widget.errorMessageGeolocation!,
+                style: const TextStyle(
+                  fontSize: 20,
+                  color: Colors.red,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            )
+          : Column(
               children: [
-                if (locationInfo['city'] != '') const SizedBox(height: 30),
-                Center(
-                  child: Text(
-                    '${locationInfo['city']}',
-                    style: const TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      color: Color.fromRGBO(243, 236, 250, 1),
-                      shadows: [
-                        Shadow(
-                          blurRadius: 10.0,
-                          color: Colors.black,
-                          offset: Offset(0, 0),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 5),
-                if (locationInfo['region'] != '' &&
-                    locationInfo['country'] != '')
-                  Center(
-                    child: Text(
-                      '${locationInfo['region']}, ${locationInfo['country']}',
-                      style: const TextStyle(
-                        fontSize: 20,
-                        color: Color.fromRGBO(243, 236, 250, 1),
-                        shadows: [
-                          Shadow(
-                            blurRadius: 10.0,
-                            color: Colors.black,
-                            offset: Offset(0, 0),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                // ============================================================
-
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: 300, // Modifiez cette valeur pour ajuster la largeur
-                  height: 300, // Hauteur du graphique
-                  child: LineChart(mainData()),
-                ),
-
-                // ============================================================
-                const SizedBox(height: 10),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: hourlyWeather.map((hourData) {
-                      return Card(
-                        color: Color.fromARGB(39, 243, 236, 250),
-                        margin: const EdgeInsets.all(5),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text('${hourData["time"]}',
-                                  style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color:Color.fromRGBO(243, 236, 250, 1),
-                                      )),
-                              const SizedBox(height: 10),
-                              WeatherService.getWeatherDescriptionWidgetToday(
-                                  hourData["weatherCode"]),
-                              const SizedBox(height: 10),
-                              Text('${hourData["temperature"]}°C',
-                                  style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color:Color.fromRGBO(243, 236, 250, 1),
-                                      )),
-                              const SizedBox(height: 10),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  const Icon(
-                                    Icons.wind_power,
-                                    size: 15,
-                                    color:Color.fromRGBO(243, 236, 250, 1),
-                                  ),
-                                  Text('${hourData["windSpeed"]} km/h',
-                                      style: const TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.bold,
-                                          color:Color.fromRGBO(243, 236, 250, 1),
-                                          )),
-                                ],
+                Expanded(
+                  child: ListView(
+                    children: [
+                      if (locationInfo['city'] != '') const SizedBox(height: 30),
+                      Center(
+                        child: Text(
+                          '${locationInfo['city']}',
+                          style: const TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                            color: Color.fromRGBO(243, 236, 250, 1),
+                            shadows: [
+                              Shadow(
+                                blurRadius: 10.0,
+                                color: Colors.black,
+                                offset: Offset(0, 0),
                               ),
                             ],
                           ),
                         ),
-                      );
-                    }).toList(),
+                      ),
+                      const SizedBox(height: 5),
+                      if (locationInfo['region'] != '' &&
+                          locationInfo['country'] != '')
+                        Center(
+                          child: Text(
+                            '${locationInfo['region']}, ${locationInfo['country']}',
+                            style: const TextStyle(
+                              fontSize: 20,
+                              color: Color.fromRGBO(243, 236, 250, 1),
+                              shadows: [
+                                Shadow(
+                                  blurRadius: 10.0,
+                                  color: Colors.black,
+                                  offset: Offset(0, 0),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        width: 300, // Modifiez cette valeur pour ajuster la largeur
+                        height: 300, // Hauteur du graphique
+                        child: LineChart(mainData()),
+                      ),
+                      const SizedBox(height: 10),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: hourlyWeather.map((hourData) {
+                            return Card(
+                              color: Color.fromARGB(39, 243, 236, 250),
+                              margin: const EdgeInsets.all(5),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text('${hourData["time"]}',
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color.fromRGBO(
+                                              243, 236, 250, 1),
+                                        )),
+                                    const SizedBox(height: 10),
+                                    WeatherService
+                                        .getWeatherDescriptionWidgetToday(
+                                            hourData["weatherCode"]),
+                                    const SizedBox(height: 10),
+                                    Text('${hourData["temperature"]}°C',
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color.fromRGBO(
+                                              243, 236, 250, 1),
+                                        )),
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        const Icon(
+                                          Icons.wind_power,
+                                          size: 15,
+                                          color: Color.fromRGBO(
+                                              243, 236, 250, 1),
+                                        ),
+                                        Text('${hourData["windSpeed"]} km/h',
+                                            style: const TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold,
+                                              color: Color.fromRGBO(
+                                                  243, 236, 250, 1),
+                                            )),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-          ),
-        ],
-      ),
     );
   }
 }

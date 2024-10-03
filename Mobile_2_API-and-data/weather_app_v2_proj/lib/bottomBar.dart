@@ -57,7 +57,9 @@ class _BottomBarState extends State<BottomBar> {
       final data = json.decode(response.body);
       if (data != null && data.containsKey('results')) {
         List<dynamic> results = data['results'];
+        print("resultat ici  ===> $results");
         if (results.isEmpty) {
+          print(results);
         // Gestion de la ville inexistante
         showError("City name not valid.");
         return [];

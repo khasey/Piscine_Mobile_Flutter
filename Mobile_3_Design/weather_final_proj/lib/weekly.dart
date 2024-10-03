@@ -10,11 +10,13 @@ class Weekly extends StatefulWidget {
   final String cityName;
   final double? latitude;
   final double? longitude;
+  final String? errorMessageGeolocation;
 
   const Weekly(
       {super.key,
       required this.isGeoLocationEnabled,
       required this.cityName,
+      this.errorMessageGeolocation,
       this.latitude,
       this.longitude});
 
@@ -44,18 +46,16 @@ class _WeeklyState extends State<Weekly> {
       String apiUrl =
           'https://api.open-meteo.com/v1/forecast?latitude=${widget.latitude}&longitude=${widget.longitude}&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum,rain_sum,showers_sum&timezone=$timezone';
       final response = await http
-          .get(Uri.parse(apiUrl)); // Ajoutez ceci pour afficher la réponse
+          .get(Uri.parse(apiUrl));
 
       if (response.statusCode == 200) {
-        var data = json.decode(
-            response.body); // Ajoutez ceci pour afficher les données (JSON
+        var data = json.decode(response.body);
 
         List dailyData = data['daily']['time'] ?? [];
         List maxTemps = data['daily']['temperature_2m_max'] ?? [];
         List minTemps = data['daily']['temperature_2m_min'] ?? [];
-        List weatherCodes = data['daily']['weathercode'] ??
-            []; // Assurez-vous que cette clé existe
-        print(weatherCodes);
+        List weatherCodes = data['daily']['weathercode'] ?? [];
+
         if (dailyData.isNotEmpty) {
           setState(() {
             weeklyWeather = List.generate(dailyData.length, (index) {
@@ -76,7 +76,6 @@ class _WeeklyState extends State<Weekly> {
         showError('Failed to fetch weekly weather');
       }
     } catch (e) {
-      // ignore: avoid_print
       print('Error fetching weekly weather: $e');
     }
   }
@@ -103,7 +102,6 @@ class _WeeklyState extends State<Weekly> {
       );
     }
 
-    // Création des spots pour les températures max et min
     List<FlSpot> maxTempSpots = [];
     List<FlSpot> minTempSpots = [];
     for (var i = 0; i < weeklyWeather.length; i++) {
@@ -120,10 +118,6 @@ class _WeeklyState extends State<Weekly> {
           sideTitles: SideTitles(
             showTitles: false,
             reservedSize: 25,
-            getTitlesWidget: (value, meta) {
-              return const Text('',
-                  style: TextStyle(color: Color(0xff67727d), fontSize: 15));
-            },
           ),
         ),
         bottomTitles: AxisTitles(
@@ -169,19 +163,7 @@ class _WeeklyState extends State<Weekly> {
             },
           ),
         ),
-        rightTitles: AxisTitles(
-          sideTitles: SideTitles(
-            showTitles: true,
-            reservedSize: 25,
-            getTitlesWidget: (value, meta) {
-              return const Text('',
-                  style: TextStyle(color: Color(0xff67727d), fontSize: 15));
-            },
-          ),
-        ),
       ),
-
-      // ... Configuration du graphique ...
       lineBarsData: [
         LineChartBarData(
           spots: maxTempSpots,
@@ -202,7 +184,6 @@ class _WeeklyState extends State<Weekly> {
           belowBarData: BarAreaData(show: false),
         ),
       ],
-      // ... Autres configurations ...
     );
   }
 
@@ -212,139 +193,138 @@ class _WeeklyState extends State<Weekly> {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          Expanded(
-            child: ListView(
-              children: [
-                Column(
-                  children: [
-                    if (locationInfo['city'] != '') const SizedBox(height: 20),
-                    Center(
-                      child: Text(
-                        '${locationInfo['city']}',
-                        style: const TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromRGBO(243, 236, 250, 1),
-                          shadows: [
-                            Shadow(
-                              blurRadius: 10.0,
-                              color: Colors.black,
-                              offset: Offset(0, 0),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    if (locationInfo['region'] != '' &&
-                        locationInfo['country'] != '')
-                      Center(
-                        child: Text(
-                          '${locationInfo['region']}, ${locationInfo['country']}',
-                          style: const TextStyle(
-                            fontSize: 20,
-                            color: Color.fromRGBO(243, 236, 250, 1),
-                            shadows: [
-                              Shadow(
-                                blurRadius: 10.0,
-                                color: Colors.black,
-                                offset: Offset(0, 0),
+      body: widget.errorMessageGeolocation != null &&
+              widget.errorMessageGeolocation!.isNotEmpty
+          ? Center(
+              child: Text(
+                widget.errorMessageGeolocation!,
+                style: const TextStyle(
+                  fontSize: 20,
+                  color: Colors.red,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            )
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                Expanded(
+                  child: ListView(
+                    children: [
+                      Column(
+                        children: [
+                          if (locationInfo['city'] != '') const SizedBox(height: 20),
+                          Center(
+                            child: Text(
+                              '${locationInfo['city']}',
+                              style: const TextStyle(
+                                fontSize: 30,
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromRGBO(243, 236, 250, 1),
+                                shadows: [
+                                  Shadow(
+                                    blurRadius: 10.0,
+                                    color: Colors.black,
+                                    offset: Offset(0, 0),
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
-                        ),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 30),
-                Container(
-                  height: 300, // Hauteur fixe pour le graphique
-                  padding: const EdgeInsets.all(8.0),
-                  child: LineChart(mainData()),
-                ),
-
-                const SizedBox(height: 10),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: weeklyWeather.map((dayWeather) {
-                      return Container(
-                        width: 120,
-                        height: 150,
-                        margin: const EdgeInsets.all(0),
-                        child: Card(
-                          color: Color.fromARGB(39, 243, 236, 250),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              const SizedBox(height: 10),
-                              Text(
-                                '${dayWeather["date"]}',
+                          if (locationInfo['region'] != '' &&
+                              locationInfo['country'] != '')
+                            Center(
+                              child: Text(
+                                '${locationInfo['region']}, ${locationInfo['country']}',
                                 style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
                                   fontSize: 20,
                                   color: Color.fromRGBO(243, 236, 250, 1),
-                                  // shadows: [
-                                  //   Shadow(
-                                  //     blurRadius: 10.0,
-                                  //     color: Colors.white,
-                                  //     offset: Offset(0, 0),
-                                  //   ),
-                                  // ],
+                                  shadows: [
+                                    Shadow(
+                                      blurRadius: 10.0,
+                                      color: Colors.black,
+                                      offset: Offset(0, 0),
+                                    ),
+                                  ],
                                 ),
                               ),
-                              const SizedBox(height: 10),
-                              WeatherService.getWeatherDescriptionWidgetToday(
-                                  dayWeather["weatherDescription"]),
-                              const SizedBox(height: 10),
-                              Text('${dayWeather["maxTemp"]}°C max',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 15,
-                                    color: Color.fromRGBO(243, 236, 250, 1),
-                                    shadows: [
-                                      Shadow(
-                                        blurRadius: 10.0,
-                                        color: Color.fromARGB(255, 240, 0, 0),
-                                        offset: Offset(0, 0),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 30),
+                      Container(
+                        height: 300, // Hauteur fixe pour le graphique
+                        padding: const EdgeInsets.all(8.0),
+                        child: LineChart(mainData()),
+                      ),
+                      const SizedBox(height: 10),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: weeklyWeather.map((dayWeather) {
+                            return Container(
+                              width: 120,
+                              height: 150,
+                              margin: const EdgeInsets.all(0),
+                              child: Card(
+                                color: Color.fromARGB(39, 243, 236, 250),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    const SizedBox(height: 10),
+                                    Text(
+                                      '${dayWeather["date"]}',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20,
+                                        color: Color.fromRGBO(243, 236, 250, 1),
                                       ),
-                                    ],
-                                  )),
-                              Text('${dayWeather["minTemp"]}°C min',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 15,
-                                    color: Color.fromRGBO(243, 236, 250, 1),
-                                    shadows: [
-                                      Shadow(
-                                        blurRadius: 10.0,
-                                        color: Color.fromARGB(255, 0, 0, 255),
-                                        offset: Offset(0, 0),
-                                      ),
-                                    ],
-                                  )),
-                              const SizedBox(height: 10),
-                            ],
-                          ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    WeatherService.getWeatherDescriptionWidgetToday(
+                                        dayWeather["weatherDescription"]),
+                                    const SizedBox(height: 10),
+                                    Text('${dayWeather["maxTemp"]}°C max',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15,
+                                          color: Color.fromRGBO(243, 236, 250, 1),
+                                          shadows: [
+                                            Shadow(
+                                              blurRadius: 10.0,
+                                              color: Color.fromARGB(255, 240, 0, 0),
+                                              offset: Offset(0, 0),
+                                            ),
+                                          ],
+                                        )),
+                                    Text('${dayWeather["minTemp"]}°C min',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15,
+                                          color: Color.fromRGBO(243, 236, 250, 1),
+                                          shadows: [
+                                            Shadow(
+                                              blurRadius: 10.0,
+                                              color: Color.fromARGB(255, 0, 0, 255),
+                                              offset: Offset(0, 0),
+                                            ),
+                                          ],
+                                        )),
+                                    const SizedBox(height: 10),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }).toList(),
                         ),
-                      );
-                    }).toList(),
+                      ),
+                    ],
                   ),
                 ),
-                // for (var dayWeather in weeklyWeather)
-                //   ListTile(
-                //     title: Text(
-                //         '${dayWeather["date"]} - Min: ${dayWeather["minTemp"]}°C, Max: ${dayWeather["maxTemp"]}°C, Weather: ${dayWeather["weatherDescription"]}'),
-                //   ),
               ],
             ),
-          ),
-        ],
-      ),
     );
   }
 }
